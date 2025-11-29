@@ -6,101 +6,56 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        background: #f5f5f5;
-    }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f4f4; }
     header {
-        text-align: center;
-        padding: 25px;
-        background: white;
-        font-size: 32px;
-        font-weight: bold;
-        font-family: "Georgia", serif;
+        text-align: center; padding: 25px; background: white;
+        font-size: 32px; font-weight: bold; font-family: "Georgia", serif;
         border-bottom: 2px solid #ddd;
     }
     .btn {
-        display: block;
-        width: 200px;
-        margin: 20px auto;
-        padding: 12px;
-        background: #4b7bec;
-        color: white;
-        font-size: 18px;
-        border-radius: 8px;
-        text-align: center;
-        cursor: pointer;
+        display: block; width: 220px; margin: 20px auto; padding: 12px;
+        background: #4b7bec; color: white; font-size: 18px;
+        border-radius: 8px; text-align: center; cursor: pointer;
     }
-    .btn:hover {
-        background: #3867d6;
-    }
-    .container {
-        width: 90%;
-        max-width: 1100px;
-        margin: auto;
-    }
+    .btn:hover { background: #3867d6; }
+
+    .container { width: 90%; max-width: 1100px; margin: auto; }
+
     #searchBar {
-        width: 100%;
-        padding: 12px;
-        margin-top: 20px;
-        border-radius: 6px;
-        border: 1px solid #ccc;
-        font-size: 16px;
+        width: 100%; padding: 12px; margin-top: 20px;
+        border-radius: 6px; border: 1px solid #ccc; font-size: 16px;
     }
+
     .book-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-        gap: 20px;
-        margin-top: 25px;
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+        gap: 20px; margin-top: 25px;
     }
     .book-card {
-        background: white;
-        padding: 15px;
-        border-radius: 10px;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-        text-align: center;
+        background: white; padding: 15px; border-radius: 10px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.1); text-align: center;
     }
     .book-card img {
-        width: 100%;
-        height: 220px;
-        object-fit: cover;
-        border-radius: 8px;
+        width: 100%; height: 220px; object-fit: cover; border-radius: 8px;
     }
+
     .read-btn {
-        background: #20bf6b;
-        color: white;
-        padding: 10px;
-        width: 100%;
-        margin-top: 10px;
-        border-radius: 8px;
-        cursor: pointer;
+        background: #20bf6b; color: white; padding: 10px;
+        width: 100%; margin-top: 10px; border-radius: 8px; cursor: pointer;
     }
     .delete-btn {
-        background: #eb3b5a;
-        color: white;
-        padding: 8px;
-        width: 100%;
-        margin-top: 5px;
-        border-radius: 8px;
-        cursor: pointer;
+        background: #eb3b5a; color: white; padding: 10px;
+        width: 100%; margin-top: 10px; border-radius: 8px; cursor: pointer;
     }
+
+    /* Add Book Form */
     #addBookForm {
-        display: none;
-        background: white;
-        padding: 20px;
-        border-radius: 12px;
-        margin-top: 20px;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        display: none; background: white; padding: 20px; border-radius: 12px;
+        margin-top: 20px; box-shadow: 0 3px 8px rgba(0,0,0,0.1);
     }
+
     input, button {
-        margin: 8px 0;
-        width: 100%;
-        padding: 10px;
-        border-radius: 5px;
-        border: 1px solid #bbb;
-        font-size: 16px;
+        margin: 8px 0; width: 100%; padding: 10px;
+        border-radius: 5px; border: 1px solid #bbb; font-size: 16px;
     }
 </style>
 </head>
@@ -112,15 +67,17 @@
 <div class="btn" onclick="askPassword('add')">Add My Book</div>
 
 <div class="container">
+
     <input type="text" id="searchBar" placeholder="Search books..." onkeyup="searchBooks()">
 
-    <div id="addBookForm">
+    <!-- Add Book Form -->
+    <form id="addBookForm" onsubmit="event.preventDefault(); saveBook();">
         <h3>Add New Book</h3>
-        <input type="text" id="bookTitle" placeholder="Book Title">
-        <input type="text" id="bookLink" placeholder="Google Drive PDF Link">
-        <input type="file" id="thumbnail">
-        <button onclick="saveBook()">Save Book</button>
-    </div>
+        <input type="text" id="bookTitle" placeholder="Book Title" required>
+        <input type="text" id="bookLink" placeholder="Google Drive PDF Link" required>
+        <input type="file" id="thumbnail" accept="image/*" required>
+        <button type="submit">Save Book</button>
+    </form>
 
     <div class="book-grid" id="bookList"></div>
 </div>
@@ -128,9 +85,9 @@
 <script>
 let PASSWORD = "2299";
 
-// Ask password before add/delete
+/* ASK FOR PASSWORD BEFORE ADD/DELETE */
 function askPassword(action, id = null) {
-    let pass = prompt("Enter Password to Continue:");
+    let pass = prompt("Enter Password:");
     if (pass === PASSWORD) {
         if (action === "add") {
             document.getElementById("addBookForm").style.display = "block";
@@ -143,32 +100,31 @@ function askPassword(action, id = null) {
     }
 }
 
-// Load books
+/* LOAD ALL BOOKS */
 function loadBooks() {
     let books = JSON.parse(localStorage.getItem("books")) || [];
-    let listDiv = document.getElementById("bookList");
-    listDiv.innerHTML = "";
+    let list = document.getElementById("bookList");
+    list.innerHTML = "";
 
     books.forEach((book, index) => {
-        listDiv.innerHTML += `
+        list.innerHTML += `
             <div class="book-card">
                 <img src="${book.thumbnail}">
                 <h3>${book.title}</h3>
                 <button class="read-btn" onclick="window.open('${book.link}', '_blank')">Read Now</button>
                 <button class="delete-btn" onclick="askPassword('delete', ${index})">Delete</button>
-            </div>
-        `;
+            </div>`;
     });
 }
 
-// Save book
+/* SAVE NEW BOOK */
 function saveBook() {
     let title = document.getElementById("bookTitle").value;
     let link = document.getElementById("bookLink").value;
     let file = document.getElementById("thumbnail").files[0];
 
     if (!title || !link || !file) {
-        alert("Please fill all fields and upload a thumbnail!");
+        alert("Please fill all fields!");
         return;
     }
 
@@ -184,13 +140,17 @@ function saveBook() {
         localStorage.setItem("books", JSON.stringify(books));
 
         alert("Book Added Successfully!");
-        document.getElementById("addBookForm").reset;
+
+        document.getElementById("addBookForm").reset();
+        document.getElementById("addBookForm").style.display = "none";
+
         loadBooks();
     };
+
     reader.readAsDataURL(file);
 }
 
-// Delete book
+/* DELETE BOOK */
 function deleteBook(id) {
     let books = JSON.parse(localStorage.getItem("books")) || [];
     books.splice(id, 1);
@@ -198,21 +158,20 @@ function deleteBook(id) {
     loadBooks();
 }
 
-// Search  
+/* SEARCH BOOKS */
 function searchBooks() {
-    let value = document.getElementById("searchBar").value.toLowerCase();
+    let text = document.getElementById("searchBar").value.toLowerCase();
     let cards = document.querySelectorAll(".book-card");
 
     cards.forEach(card => {
         let title = card.querySelector("h3").innerText.toLowerCase();
-        card.style.display = title.includes(value) ? "block" : "none";
+        card.style.display = title.includes(text) ? "block" : "none";
     });
 }
 
-// Start
+/* INITIAL LOAD */
 loadBooks();
 </script>
 
 </body>
 </html>
-
